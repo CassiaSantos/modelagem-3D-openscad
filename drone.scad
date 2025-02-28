@@ -7,7 +7,7 @@
 // ----------- PARAMETROS GERAIS -----------
 body_length = 70;       // comprimento do corpo
 body_width = 35;        // largura do corpo
-body_height = 20;       // altura do corpo
+body_height = 15;       // altura do corpo
 
 arm_length = 40;        // comprimento dos braços
 arm_width = 8;          // largura dos braços
@@ -20,7 +20,7 @@ propeller_length = 25;  // comprimento da pá
 propeller_width = 2;    // largura da pá
 propeller_thickness = 1;// espessura da pá
 
-landing_leg_height = 15;   // altura do "pé" de pouso
+landing_leg_height = 22;   // altura do "pé" de pouso
 landing_leg_thickness = 3; // espessura do "pé" de pouso
 
 camera_radius = 5;         // “tamanho” da lente/cilindro da câmera
@@ -31,8 +31,9 @@ $fn = 60;
 
 // ----------- CORPO PRINCIPAL -----------
 module drone_body() {
-    // Vamos criar uma forma mais “aerodinâmica” usando hull() de dois retângulos
+    // cria uma forma mais “aerodinâmica” usando hull() de dois retângulos
     // e um polígono para o topo. É apenas um truque simples de design.
+    color("gray")
     difference() {
         union() {
             // Parte inferior (retângulo extrudado)
@@ -40,7 +41,7 @@ module drone_body() {
             cube([body_length, body_width, body_height], center=true);
             
             // Parte superior (tentando criar uma leve curvatura)
-            translate([-body_length/2, -body_width/2, body_height/2 - 2]) 
+            translate([-body_length/2, -body_width/2, body_height/2 - 5]) 
             linear_extrude(height=5, center=false, convexity=10)
             polygon(points=[
                 [0,0],
@@ -58,6 +59,7 @@ module drone_body() {
 // ----------- BRAÇO COM MOTOR E HÉLICE -----------
 module drone_arm(angle=0) {
     // Rotacionamos o braço num certo ângulo em relação ao corpo
+    color("red")
     rotate([0,0,angle]) {
         // Mover para fora do corpo
         translate([body_length/2 - 5, 0, 0]) {
@@ -78,7 +80,7 @@ module drone_arm(angle=0) {
 // ----------- HELICES -----------
 module propellers() {
     // Duas pás em cruz, rotacionadas em 90 graus
-    for (rot = [0,90]) {
+    for (rot = [90,-90]) {
         rotate([0,0,rot]) {
             translate([-propeller_length/2, 0, 0]) {
                 cube([propeller_length, propeller_width, propeller_thickness], center=true);
@@ -93,11 +95,12 @@ module landing_legs() {
     // Ajuste de posições para ficarem abaixo do corpo
     leg_offset_x = body_length/4;
     leg_offset_y = body_width/2 + 2;
-    leg_width = 2;
+    leg_width = 3;
 
     // Pernas frontais
     for (sign=[1,-1]) {
         translate([leg_offset_x, sign*leg_offset_y, -landing_leg_height]) {
+            color("black")
             cube([leg_width, leg_width, landing_leg_height], center=false);
         }
     }
@@ -105,6 +108,7 @@ module landing_legs() {
     // Pernas traseiras
     for (sign=[1,-1]) {
         translate([-leg_offset_x, sign*leg_offset_y, -landing_leg_height]) {
+            color("black")
             cube([leg_width, leg_width, landing_leg_height], center=false);
         }
     }
@@ -113,6 +117,7 @@ module landing_legs() {
 // ----------- CAMERA FRONTAL -----------
 module front_camera() {
     // Vamos criar uma pequena “caixa” frontal e uma lente
+    color("black")
     translate([body_length/2 - 5, 0, -body_height/4]) {
         // Caixa protetora da câmera
         cube(camera_box, center=true);
@@ -129,7 +134,7 @@ module drone_mavic_like() {
     drone_body();
 
     // Braços (quatro, em ângulos específicos)
-    // Ajustando a rotação para ficar em diagonal
+    // Ajusta a rotação para ficar em diagonal
     // Ex: 35° e 145° para a frente, 215° e 325° para trás (aproximado)
     drone_arm(35);
     drone_arm(145);
